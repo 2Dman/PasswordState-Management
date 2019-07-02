@@ -5,65 +5,49 @@ online version:
 schema: 2.0.0
 ---
 
-# Remove-PasswordStatePassword
+# Remove-PasswordStateHost
 
 ## SYNOPSIS
-Deletes a password state entry.
+Deletes a password state host.
 
 ## SYNTAX
 
 ```
-Remove-PasswordStatePassword [-PasswordID] <Int32> [-SendToRecycleBin] [[-reason] <String>] [-PreventAuditing]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Remove-PasswordStateHost [-HostName] <String> [[-Reason] <String>] [-PreventAuditing] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Deletes a password state entry.
+Deletes a password state host.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Remove-PasswordStatePassword -PasswordID 5 -sendtorecyclebin
+Remove-PasswordStateHost -HostName 'testhostname.domain'
 ```
 
-Returns the test user object including password.
+Deletes the host testhostname.domain.
 
 ## PARAMETERS
 
-### -PasswordID
-ID value of the entry to delete.
-Int32 value
+### -HostName
+The exact hostname for the host you want to remove
 
 ```yaml
-Type: Int32
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: True
 Position: 1
-Default value: 0
+Default value: None
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -SendToRecycleBin
-Send the password to the recyclebin or permenant delete.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 2
-Default value: False
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -reason
-A reason which can be logged for auditing of why a password was removed.
+### -Reason
+A reason which can be logged for auditing of why a host was removed.
 
 ```yaml
 Type: String
@@ -71,14 +55,14 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 3
+Position: 2
 Default value: None
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
 ### -PreventAuditing
-{{Fill PreventAuditing Description}}
+An optional parameter to prevent logging this API call in the audit log (Can be overruled in PasswordState preferences).
 
 ```yaml
 Type: SwitchParameter
@@ -86,7 +70,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 4
+Position: 3
 Default value: False
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
@@ -129,12 +113,10 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## INPUTS
 
-### PasswordID - ID of the Password entry (Integer)
-### SendtoRecyclebin - Optionally soft delete to the reyclebin
+### HostName - The exact hostname for the host (String)
 ## OUTPUTS
 
-### Returns the Object from the API as a powershell object.
 ## NOTES
-Daryl Newsholme 2018
+2019 - Jarno Colombeen
 
 ## RELATED LINKS

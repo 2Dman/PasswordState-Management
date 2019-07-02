@@ -13,7 +13,7 @@ Creates a passwordstate List.
 ## SYNTAX
 
 ```
-New-PasswordStateList [-Name] <String> [-description] <String> [[-CopySettingsFromPasswordListID] <Int32>]
+New-PasswordStateList [-Name] <String> [-description] <String> [-CopySettingsFromPasswordListID] <Int32>
  [-FolderID] <Int32> [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
@@ -45,7 +45,7 @@ Accept wildcard characters: False
 ```
 
 ### -description
-Description fro the list
+Description for the list
 
 ```yaml
 Type: String
@@ -67,9 +67,9 @@ Type: Int32
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: 3
-Default value: None
+Default value: 0
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```

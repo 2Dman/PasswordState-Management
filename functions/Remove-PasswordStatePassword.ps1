@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Deletes a password state entry.
 .DESCRIPTION
@@ -28,28 +28,34 @@ function Remove-PasswordStatePassword {
     param (
         [parameter(ValueFromPipelineByPropertyName, Position = 0, Mandatory = $true)][int32]$PasswordID,
         [parameter(ValueFromPipeline, Position = 1, Mandatory = $false)][Switch]$SendToRecycleBin,
-        [parameter(ValueFromPipelineByPropertyName, Position = 2, Mandatory = $false)][string]$reason
+        [parameter(ValueFromPipelineByPropertyName, Position = 2, Mandatory = $false)][string]$reason,
+        [parameter(ValueFromPipelineByPropertyName, Position = 3)][switch]$PreventAuditing
     )
 
     begin {
     }
 
     process {
-        if ($reason) {
+        If ($Reason) {
             $headerreason = @{"Reason" = "$reason"}
+            $parms = @{ExtraParams = @{"Headers" = $headerreason}}
         }
-        if ($PSCmdlet.ShouldProcess("PasswordID:$($PasswordID) Recycle:$Sendtorecyclebin")) {
-            if ($SendToRecycleBin) {
-                $result = Remove-PasswordStateResource -uri "/api/passwords/$($PasswordID)?MoveToRecycleBin=$sendtorecyclebin" -extraparams @{"Headers" = $headerreason}
-            }
-            Else {
-                $result = Remove-PasswordStateResource -uri "/api/passwords/$($PasswordID)?MoveToRecycleBin=False" -extraparams @{"Headers" = $headerreason}
-            }
-        }
-    }
 
-    end {
-        # Use select to make sure output is returned in a sensible order.
-        Return $result
+        $BuildURL = '?'
+        IF($SendToRecycleBin) {$BuildURL += "MoveToRecycleBin=$([System.Web.HttpUtility]::UrlEncode('True'))&"}
+        Else{$BuildURL += "MoveToRecycleBin=$([System.Web.HttpUtility]::UrlEncode('False'))&"}
+        If ($PreventAuditing) {$BuildURL += "PreventAuditing=$([System.Web.HttpUtility]::UrlEncode('True'))&"}
+        $BuildURL = $BuildURL -Replace ".$"
+
+        $uri = "/api/passwords/$($PasswordID)$($BuildURL)"
+
+        if ($PSCmdlet.ShouldProcess("PasswordID:$($PasswordID) Recycle:$Sendtorecyclebin")) {
+            try {
+                Remove-PasswordStateResource -uri $uri @parms -method Delete
+            }
+            Catch {
+                throw $_.Exception
+            }
+        }
     }
 }

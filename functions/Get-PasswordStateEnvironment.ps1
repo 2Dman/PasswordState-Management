@@ -17,9 +17,15 @@ function Get-PasswordStateEnvironment {
     )
 
     begin {
+        # Check to see if machine is running linux if so implement a fix for kerberos auth.
+        if ($invokeIsLinux -eq $true){
+            $env:DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=0
+        }
         try {
+            # Get Profile path
+            $profilepath = [Environment]::GetFolderPath('UserProfile')
             # Read in the password state environment json config file.
-            $content = Get-Content "$($env:USERPROFILE)\passwordstate.json" -ErrorAction Stop
+            $content = Get-Content "$($profilepath)\passwordstate.json" -ErrorAction Stop
         }
         Catch {
             throw "No environment has been set. Run Set-PasswordStateEnvironment to create first."
@@ -38,7 +44,11 @@ function Get-PasswordStateEnvironment {
             $apikey = $cred.GetNetworkCredential().Password
             $output.apikey = $apikey
         }
-
+        if ($output.PasswordGeneratorAPIKey){
+            $cred2 = New-Object System.Management.Automation.PSCredential -ArgumentList "username", $($output.PasswordGeneratorAPIKey | ConvertTo-SecureString)
+            $pwgen = $cred2.GetNetworkCredential().Password
+            $output.PasswordGeneratorAPIKey = $pwgen
+        }
     }
 
     end {

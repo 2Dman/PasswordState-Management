@@ -12,14 +12,15 @@ Gets all password lists from the API (Only those you have permissions to.)
 
 ## SYNTAX
 
-### SearchByID
+### ID (Default)
 ```
-Get-PasswordStateList [[-PasswordListID] <Int32>] [<CommonParameters>]
+Get-PasswordStateList [[-PasswordListID] <Int32>] [-PreventAuditing] [<CommonParameters>]
 ```
 
-### SearchBy
+### Specific
 ```
-Get-PasswordStateList [[-Searchby] <String>] [[-SearchName] <String>] [<CommonParameters>]
+Get-PasswordStateList [[-PasswordList] <String>] [[-Description] <String>] [[-TreePath] <String>]
+ [[-SiteID] <Int32>] [[-SiteLocation] <String>] [-PreventAuditing] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,6 +33,16 @@ Gets all password lists from the API (Only those you have permissions to.)
 Get-PasswordStateList
 ```
 
+### EXAMPLE 2
+```
+Get-PasswordStateList -PasswordListID 3
+```
+
+### EXAMPLE 3
+```
+Get-PasswordStateList -PasswordList 'Test' -TreePath '\TestPath\Lists' -SiteID 123
+```
+
 ## PARAMETERS
 
 ### -PasswordListID
@@ -39,7 +50,7 @@ Gets the passwordlist based on ID, when omitted, gets all the passord lists
 
 ```yaml
 Type: Int32
-Parameter Sets: SearchByID
+Parameter Sets: ID
 Aliases:
 
 Required: False
@@ -49,32 +60,92 @@ Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -Searchby
-Indication when you want to search based on ID or Name
+### -PasswordList
+The name for the PasswordList to find
 
 ```yaml
 Type: String
-Parameter Sets: SearchBy
+Parameter Sets: Specific
 Aliases:
 
 Required: False
 Position: 1
-Default value: ID
+Default value: None
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -SearchName
-The name to search
+### -Description
+The description for the PasswordList to find
 
 ```yaml
 Type: String
-Parameter Sets: SearchBy
+Parameter Sets: Specific
 Aliases:
 
 Required: False
 Position: 2
 Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -TreePath
+The treepath where the PasswordList should be found
+
+```yaml
+Type: String
+Parameter Sets: Specific
+Aliases:
+
+Required: False
+Position: 3
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -SiteID
+The siteID for the PasswordList
+
+```yaml
+Type: Int32
+Parameter Sets: Specific
+Aliases:
+
+Required: False
+Position: 4
+Default value: 0
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -SiteLocation
+The sitelocation for the PasswordList
+
+```yaml
+Type: String
+Parameter Sets: Specific
+Aliases:
+
+Required: False
+Position: 5
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -PreventAuditing
+{{Fill PreventAuditing Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 6
+Default value: False
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
@@ -89,6 +160,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ### Returns the lists including their names and IDs.
 ## NOTES
-Daryl Newsholme 2018
+2018 - Daryl Newsholme
+2019 - Jarno Colombeen
 
 ## RELATED LINKS

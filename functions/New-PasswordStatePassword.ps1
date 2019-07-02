@@ -12,6 +12,8 @@
     The username to be added to the entry (Optional)
 .PARAMETER password
     The password to be added to the entry.
+.PARAMETER Generatepassword
+    A switch parameter to generate the password based off the PasswordList Policy.
 .PARAMETER title
     Name of the entry to be created.
 .PARAMETER notes
@@ -41,12 +43,14 @@ function New-PasswordStatePassword {
         'PSAvoidUsingPlainTextForPassword', '', Justification = 'Password can only be passed to api in plaintext due to passwordstate api'
     )]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUserNameAndPassWordParams', '', Justification = 'Credential would break cmdlet flow')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Justification = 'Needed for backward compatability')]
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [parameter(ValueFromPipelineByPropertyName)][int32]$passwordlistID,
         [parameter(ValueFromPipelineByPropertyName)][string]$username = "",
         [parameter(ValueFromPipelineByPropertyName)][string]$description,
-        [parameter(ValueFromPipelineByPropertyName)][string]$password,
+        [parameter(ValueFromPipelineByPropertyName,ParameterSetName="password")][string]$password,
+        [parameter(ValueFromPipelineByPropertyName,ParameterSetName="GeneratePassword")][switch]$GeneratePassword,
         [parameter(ValueFromPipelineByPropertyName)][string]$title,
         [parameter(ValueFromPipelineByPropertyName)][string]$notes,
         [parameter(ValueFromPipelineByPropertyName)][string]$url,
@@ -54,9 +58,10 @@ function New-PasswordStatePassword {
     )
 
     begin {
+        . "$(Get-NativePath -PathAsStringArray "$PSScriptroot","PasswordStateClass.ps1")"
         # Check to see if the requested password entry exists before continuing.
         try {
-            $result = Find-PasswordStatePassword -title "$title" -username $username -ErrorAction stop
+            $result = Get-PasswordStatePassword -title "$title" -username $username -ErrorAction stop
         }
         Catch {
             Write-Verbose "No existing password...Continuing."
@@ -66,8 +71,8 @@ function New-PasswordStatePassword {
         }
         # Check if hashtable has valid values
         IF($genericfields) {
-            $genericfields.keys | ForEach-Object -process {
-                if(!($($_) -match "GenericField\d" -and $($_ -replace "[^0-9]" , '') -le 10)){
+            $genericfields.keys | ForEach-Object  {
+                if(!($($_) -match "GenericField\d" -and [int]$($_ -replace "[^0-9]" , '') -le 10)){
                     throw "GenericField array is not between boundaries or has invalid key names GenericField[1-10]"
                 }
             }
@@ -81,7 +86,6 @@ function New-PasswordStatePassword {
                 "PasswordListID" = $passwordListID
                 "Username"       = $username
                 "Description"    = $description
-                "Password"       = $password
                 "Title"          = $Title
                 "Notes"          = $notes
                 "URL"            = $url
@@ -92,13 +96,27 @@ function New-PasswordStatePassword {
                     $body | add-member -notepropertyname $_ -notepropertyvalue $genericfields.Item($_)
                 }
             }
+            if ($password){
+                $body | add-member -notepropertyname "Password" -notepropertyvalue $password
+            }
+            if ($GeneratePassword){
+                $body | add-member -notepropertyname GeneratePassword -NotePropertyValue $true
+            }
             if ($PSCmdlet.ShouldProcess("PasswordList:$passwordListID Title:$title Username:$username")) {
-                $output = New-PasswordStateResource -uri "/api/passwords" -body "$($body|convertto-json)"
+                [PasswordResult]$output = New-PasswordStateResource -uri "/api/passwords" -body "$($body|convertto-json)"
+                foreach ($i in $output){
+                    $i.Password = [EncryptedPassword]$i.Password
+                }
             }
         }
     }
 
     end {
-        return $output
+        switch ($global:PasswordStateShowPasswordsPlainText) {
+            True {
+                $output.DecryptPassword()
+            }
+        }
+        Return $output
     }
 }

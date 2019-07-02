@@ -13,7 +13,8 @@ Gets a password state entry historical password entries.
 ## SYNTAX
 
 ```
-Get-PasswordStatePasswordHistory [[-PasswordID] <Int32>] [[-reason] <String>] [<CommonParameters>]
+Get-PasswordStatePasswordHistory [[-PasswordID] <Int32>] [[-reason] <String>] [-PreventAuditing]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -57,6 +58,21 @@ Aliases:
 Required: False
 Position: 2
 Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -PreventAuditing
+{{Fill PreventAuditing Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 3
+Default value: False
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```

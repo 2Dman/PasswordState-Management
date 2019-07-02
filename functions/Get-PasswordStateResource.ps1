@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
    A function to simplify the Retrieval of password state resources via the rest API
 .DESCRIPTION
@@ -30,9 +30,10 @@ function Get-PasswordStateResource {
 
     begin {
         # Force TLS 1.2
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        $SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
         # Import the environment
-        $passwordstateenvironment = $(Get-PasswordStateEnvironment)
+        $passwordstateenvironment = Get-PasswordStateEnvironment
         # If the apikey is windowsauth then rebuild the uri string to match the windows auth apis, otherwise just build the api headers.
         Switch ($passwordstateenvironment.AuthType) {
             WindowsIntegrated {
@@ -42,7 +43,15 @@ function Get-PasswordStateResource {
                 $uri = $uri.Replace("api", "winapi")
             }
             APIKey {
-                $headers = @{"APIKey" = "$($passwordstateenvironment.Apikey)"}
+                switch -Wildcard ($uri){
+                    /api/generatepassword* {
+                        Write-Verbose "[$(Get-Date -format G)] Using generate password api key"
+                        $headers = @{"APIKey" = "$($passwordstateenvironment.PasswordGeneratorAPIKey)"}
+                    }
+                    Default {
+                        $headers = @{"APIKey" = "$($passwordstateenvironment.Apikey)"}
+                    }
+                }
             }
         }
     }
@@ -54,11 +63,23 @@ function Get-PasswordStateResource {
             "ContentType"     = $ContentType
             "Method"          = $method.ToUpper()
         }
-        if ($extraparams) {
+        if (!$body){
+            $params.Remove("Body")
+        }
+        if ($headers -and $null -ne $extraparams.Headers) {
+            Write-Verbose "[$(Get-Date -format G)] Adding API Headers and extra param headers"
+            $headers += $extraparams.headers
+            $params += @{"headers" = $headers}
+            $skipheaders = $true
+        }
+        if ($extraparams -and $null -eq $extraparams.Headers){
+            Write-Verbose "[$(Get-Date -format G)] Adding extra parameter $($extraparams.keys) $($extraparams.values)"
             $params += $extraparams
         }
-        if ($headers) {
-            $params += $headers
+
+        if ($headers -and $skipheaders -ne $true) {
+            Write-Verbose "[$(Get-Date -format G)] Adding API Headers only"
+            $params += @{"headers" = $headers}
         }
         Switch ($passwordstateenvironment.AuthType) {
             APIKey {
@@ -79,6 +100,7 @@ function Get-PasswordStateResource {
     }
 
     end {
+	    [System.Net.ServicePointManager]::SecurityProtocol = $SecurityProtocol
         return $result
     }
 }

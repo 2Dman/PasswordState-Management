@@ -15,7 +15,7 @@ Updates the password of an existing password state entry.
 ```
 Update-PasswordStatePassword [-passwordID] <Int32> [[-password] <String>] [[-title] <String>]
  [[-username] <String>] [[-domain] <String>] [[-hostname] <String>] [[-notes] <String>] [[-url] <String>]
- [[-reason] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-reason] <String>] [-PreventAuditing] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -164,6 +164,21 @@ Aliases:
 Required: False
 Position: 9
 Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
+### -PreventAuditing
+{{Fill PreventAuditing Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 10
+Default value: False
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
